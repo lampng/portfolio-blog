@@ -1,25 +1,15 @@
 import { Button } from '@/styles/components/ui/button';
 import { Card, CardContent } from '@/styles/components/ui/card';
-import { MessageCircle } from 'lucide-react';
+import prisma from '@/styles/lib/db';
+import { ArrowRight, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
 
-export default function Page() {
-    const posts = [
-        {
-            id: 1,
-            slug: 'learn-next.js',
-            title: 'Learn Next.js basics',
-            content:
-                'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Inventore totam earum sit commodi minima molestias iste culpa recusandae aut, exercitationem laborum, reiciendis itaque, aliquam sint ducimus debitis mollitia beatae provident!',
-        },
-        {
-            id: 2,
-            slug: 'learn-node.js',
-            title: 'learn-node.js basics',
-            content:
-                'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Inventore totam earum sit commodi minima molestias iste culpa recusandae aut, exercitationem laborum, reiciendis itaque, aliquam sint ducimus debitis mollitia beatae provident!',
-        },
-    ];
+export default async function Page() {
+    const posts = await prisma.blogPost.findMany({
+        orderBy: { createdAt: 'desc' },
+        take: 3,
+    });
+
     return (
         <main className="min-h-screen">
             <section className="flex flex-col items-center justify-center py-20 px-4 text-center">
@@ -51,15 +41,14 @@ export default function Page() {
             <section className="py-16 px-4 max-w-3xl mx-auto">
                 <h2 className="text-2xl font-bold mb-4">Recent Posts</h2>
                 {posts.length > 0 ? (
-                    <div>
+                    <div className='flex flex-col gap-4'>
                         {posts.map((post) => (
                             <Card key={post.id} className="hover:bg-accent transition-colors">
                                 <Link href={`/blog/${post.slug}`}>
                                     <CardContent className="p-4">
                                         <h3 className="font-semibold">{post.title}</h3>
-                                        <p className='text-sm text-muted-foreground'>
-                                            {new Date(post.createdAt).toLocaleString()}
-                                             
+                                        <p className="text-sm text-muted-foreground">
+                                            {new Date(post.createdAt).toLocaleDateString()}
                                         </p>
                                     </CardContent>
                                 </Link>
@@ -69,6 +58,11 @@ export default function Page() {
                 ) : (
                     <p className="text-muted-foreground">No posts yet.</p>
                 )}
+                <Button variant="link" className="mt-4 px-0" asChild>
+                    <Link href="/blog">
+                        Xem tất cả bài viết <ArrowRight className="w-4 h-4 ml-1" />
+                    </Link>
+                </Button>
             </section>
         </main>
     );
